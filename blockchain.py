@@ -95,7 +95,7 @@ while waiting_for_input:
         # Break out of the loop
         break
 else:
-    print('User left!')
+    print('User done!')
 
 
 print('Done!')
