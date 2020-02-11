@@ -20,9 +20,9 @@ blockchain = [genesis_block]
 # Unhandled transactions
 open_transactions = []
 # We are the owner of this blockchain node, hence this is our identifier (e.g. for sending coins)
-owner = 'Max'
+owner = 'Mostafa'
 # Registered participants: Ourself + other people sending/ receiving coins
-participants = {'Max'}
+participants = {'Mostafa'}
 
 
 def valid_proof(transactions, last_hash, proof):
@@ -239,7 +239,7 @@ while waiting_for_input:
             blockchain[0] = {
                 'previous_hash': '',
                 'index': 0,
-                'transactions': [{'sender': 'Chris', 'recipient': 'Max', 'amount': 100.0}]
+                'transactions': [{'sender': 'Chris', 'recipient': 'Mostafa', 'amount': 100.0}]
             }
     elif user_choice == 'q':
         # This will lead to the loop to exist because it's running condition becomes False
@@ -251,7 +251,7 @@ while waiting_for_input:
         print('Invalid blockchain!')
         # Break out of the loop
         break
-    print('Balance of {}: {:6.2f}'.format('Max', get_balance('Max')))
+    print('Balance of {}: {:5.3f}'.format('Mostafa', get_balance('Max')))
 else:
     print('User left!')
 
