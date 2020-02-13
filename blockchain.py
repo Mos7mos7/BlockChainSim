@@ -168,7 +168,6 @@ def mine_block():
 
 def get_transaction_value():
     """ Returns the input of the user (a new transaction amount) as a float. """
-    # Get the user input, transform it from a string to a float and store it in user_input
     tx_recipient = input('Enter the recipient of the transaction: ')
     tx_amount = float(input('Your transaction amount please: '))
     return tx_recipient, tx_amount
@@ -210,8 +209,7 @@ def verify_transactions():
 
 waiting_for_input = True
 
-# A while loop for the user input interface
-# It's a loop that exits once waiting_for_input becomes False or when break is called
+
 while waiting_for_input:
     print('Please choose')
     print('1: Add a new transaction value')
@@ -225,7 +223,6 @@ while waiting_for_input:
     if user_choice == '1':
         tx_data = get_transaction_value()
         recipient, amount = tx_data
-        # Add the transaction amount to the blockchain
         if add_transaction(recipient, amount=amount):
             print('Added transaction!')
         else:
@@ -253,14 +250,12 @@ while waiting_for_input:
                 'transactions': [{'sender': 'Chris', 'recipient': 'Max', 'amount': 100.0}]
             }
     elif user_choice == 'q':
-        # This will lead to the loop to exist because it's running condition becomes False
         waiting_for_input = False
     else:
         print('Input was invalid, please pick a value from the list!')
     if not verify_chain():
         print_blockchain_elements()
         print('Invalid blockchain!')
-        # Break out of the loop
         break
     print('Balance of {}: {:6.2f}'.format('Max', get_balance('Max')))
 else:
