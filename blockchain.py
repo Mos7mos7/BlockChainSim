@@ -4,10 +4,8 @@ from collections import OrderedDict
 import json
 import pickle
 
-# Import two functions from our hash_util.py file. Omit the ".py" in the import
 from hashing import hash_string_256, hash_block
 
-# The reward we give to miners (for creating a new block)
 MINING_REWARD = 10
 
 # Our starting block for the blockchain
@@ -17,14 +15,13 @@ genesis_block = {
     'transactions': [],
     'proof': 100
 }
-# Initializing our (empty) blockchain list
 blockchain = [genesis_block]
 # Unhandled transactions
 open_transactions = []
 # We are the owner of this blockchain node, hence this is our identifier (e.g. for sending coins)
-owner = 'Max'
+owner = 'Mostafa'
 # Registered participants: Ourself + other people sending/ receiving coins
-participants = {'Max'}
+participants = {'Mostafa'}
 
 
 def load_data():
@@ -35,35 +32,12 @@ def load_data():
         global open_transactions
         blockchain = file_content['chain']
         open_transactions = file_content['ot']
-        # blockchain = json.loads(file_content[0][:-1])
-        # updated_blockchain = []
-        # for block in blockchain:
-        #     updated_block = {
-        #         'previous_hash': block['previous_hash'],
-        #         'index': block['index'],
-        #         'proof': block['proof'],
-        #         'transactions': [OrderedDict(
-        #             [('sender', tx['sender']), ('recipient', tx['recipient']), ('amount', tx['amount'])]) for tx in block['transactions']]
-        #     }
-        #     updated_blockchain.append(updated_block)
-        # blockchain = updated_blockchain
-        # open_transactions = json.loads(file_content[1])
-        # updated_transactions = []
-        # for tx in open_transactions:
-        #     updated_transaction = OrderedDict(
-        #         [('sender', tx['sender']), ('recipient', tx['recipient']), ('amount', tx['amount'])])
-        #     updated_transactions.append(updated_transaction)
-        # open_transactions = updated_transactions
-
 
 load_data()
 
 
 def save_data():
     with open('blockchain.p', mode='wb') as f:
-        # f.write(json.dumps(blockchain))
-        # f.write('\n')
-        # f.write(json.dumps(open_transactions))
         save_data = {
             'chain': blockchain,
             'ot': open_transactions
@@ -86,8 +60,6 @@ def valid_proof(transactions, last_hash, proof):
     # IMPORTANT: This is NOT the same hash as will be stored in the previous_hash. It's a not a block's hash. It's only used for the proof-of-work algorithm.
     guess_hash = hash_string_256(guess)
     print(guess_hash)
-    # Only a hash (which is based on the above inputs) which starts with two 0s is treated as valid
-    # This condition is of course defined by you. You could also require 10 leading 0s - this would take significantly longer (and this allows you to control the speed at which new blocks can be added)
     return guess_hash[0:2] == '00'
 
 
@@ -146,10 +118,6 @@ def verify_transaction(transaction):
     sender_balance = get_balance(transaction['sender'])
     return sender_balance >= transaction['amount']
 
-# This function accepts two arguments.
-# One required one (transaction_amount) and one optional one (last_transaction)
-# The optional one is optional because it has a default value => [1]
-
 
 def add_transaction(recipient, sender=owner, amount=1.0):
     """ Append a new value as well as the last blockchain value to the blockchain.
@@ -182,12 +150,6 @@ def mine_block():
     # Hash the last block (=> to be able to compare it to the stored hash value)
     hashed_block = hash_block(last_block)
     proof = proof_of_work()
-    # Miners should be rewarded, so let's create a reward transaction
-    # reward_transaction = {
-    #     'sender': 'MINING',
-    #     'recipient': owner,
-    #     'amount': MINING_REWARD
-    # }
     reward_transaction = OrderedDict(
         [('sender', 'MINING'), ('recipient', owner), ('amount', MINING_REWARD)])
     # Copy transaction instead of manipulating the original open_transactions list
