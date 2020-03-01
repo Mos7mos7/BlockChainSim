@@ -5,14 +5,15 @@ import json
 import pickle
 
 # Import two functions from our hash_util.py file. Omit the ".py" in the import
-from hash_util import hash_block
+from utility.hash_util import hash_block
+from utility.verification import Verification
 from block import Block
 from transaction import Transaction
-from verification import Verification
 
 # The reward we give to miners (for creating a new block)
 MINING_REWARD = 10
 
+print(__name__)
 
 class Blockchain:
     """The Blockchain class manages the chain of blocks as well as open transactions and the node on which it's running.
@@ -33,10 +34,12 @@ class Blockchain:
         self.load_data()
         self.hosting_node = hosting_node_id
 
+    # This turns the chain attribute into a property with a getter (the method below) and a setter (@chain.setter)
     @property
     def chain(self):
         return self.__chain[:]
 
+    # The setter for the chain property
     @chain.setter 
     def chain(self, val):
         self.__chain = val
@@ -52,7 +55,10 @@ class Blockchain:
             with open('blockchain.txt', mode='r') as f:
                 # file_content = pickle.loads(f.read())
                 file_content = f.readlines()
+                # blockchain = file_content['chain']
+                # open_transactions = file_content['ot']
                 blockchain = json.loads(file_content[0][:-1])
+                # We need to convert  the loaded data because Transactions should use OrderedDict
                 updated_blockchain = []
                 for block in blockchain:
                     converted_tx = [Transaction(
@@ -62,6 +68,7 @@ class Blockchain:
                     updated_blockchain.append(updated_block)
                 self.chain = updated_blockchain
                 open_transactions = json.loads(file_content[1])
+                # We need to convert  the loaded data because Transactions should use OrderedDict
                 updated_transactions = []
                 for tx in open_transactions:
                     updated_transaction = Transaction(
@@ -83,7 +90,11 @@ class Blockchain:
                 f.write('\n')
                 saveable_tx = [tx.__dict__ for tx in self.__open_transactions]
                 f.write(json.dumps(saveable_tx))
-        
+                # save_data = {
+                #     'chain': blockchain,
+                #     'ot': open_transactions
+                # }
+                # f.write(pickle.dumps(save_data))
         except IOError:
             print('Saving failed!')
 
@@ -140,6 +151,13 @@ class Blockchain:
             :recipient: The recipient of the coins.
             :amount: The amount of coins sent with the transaction (default = 1.0)
         """
+        # transaction = {
+        #     'sender': sender,
+        #     'recipient': recipient,
+        #     'amount': amount
+        # }
+        if self.hosting_node == None:
+            return False
         transaction = Transaction(sender, recipient, amount)
         if Verification.verify_transaction(transaction, self.get_balance):
             self.__open_transactions.append(transaction)
@@ -149,10 +167,22 @@ class Blockchain:
 
     def mine_block(self):
         """Create a new block and add open transactions to it."""
+        # Fetch the currently last block of the blockchain
+        if self.hosting_node == None:
+            return False
         last_block = self.__chain[-1]
+        # Hash the last block (=> to be able to compare it to the stored hash value)
         hashed_block = hash_block(last_block)
         proof = self.proof_of_work()
+        # Miners should be rewarded, so let's create a reward transaction
+        # reward_transaction = {
+        #     'sender': 'MINING',
+        #     'recipient': owner,
+        #     'amount': MINING_REWARD
+        # }
         reward_transaction = Transaction('MINING', self.hosting_node, MINING_REWARD)
+        # Copy transaction instead of manipulating the original open_transactions list
+        # This ensures that if for some reason the mining should fail, we don't have the reward transaction stored in the open transactions
         copied_transactions = self.__open_transactions[:]
         copied_transactions.append(reward_transaction)
         block = Block(len(self.__chain), hashed_block,
