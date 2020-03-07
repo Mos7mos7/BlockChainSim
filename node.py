@@ -9,6 +9,7 @@ wallet = Wallet()
 blockchain = Blockchain(wallet.public_key)
 CORS(app)
 
+
 @app.route('/', methods=['GET'])
 def get_ui():
     return send_from_directory('ui', 'node.html')
